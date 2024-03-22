@@ -3,6 +3,7 @@ package Individuos;
 import Escuela.Asignaturas;
 import Escuela.Expediente;
 import Escuela.Curso;
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,12 +18,14 @@ import java.util.regex.Pattern;
  * @author vazqu
  * @version 2.0, 13/03/2024
  */
-public class Alumno extends Persona implements GestionAcademica, Comparable<Alumno> {
+public class Alumno extends Persona implements GestionAcademica, Comparable<Alumno>, Serializable {
 
-    /**Atributos**/
+    /**
+     * Atributos*
+     */
+    private static final long serialVersionUID = 1L;
     private String fechaMatriculacion; //String de la fecha de matriculación del alumno
 
-    /**Constructores**/
     /**
      * Constructor sin parametros
      */

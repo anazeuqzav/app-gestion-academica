@@ -1,5 +1,7 @@
 package Escuela;
 
+import java.io.Serializable;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -9,7 +11,7 @@ package Escuela;
  *
  * @author vazqu
  */
-public enum Asignaturas {
+public enum Asignaturas implements Serializable {
     BD("Bases de datos", "BD", 4),
     ED("Entornos de desarrollo", "ED", 3),
     FOL("Formación y orientación laboral", "FOL", 2),
@@ -17,11 +19,12 @@ public enum Asignaturas {
     LMSGI("Lenguajes de marcas", "LMSGI", 3),
     PROG("Programación", "PROG", 5),
     SI("Sistemas informáticos", "SI", 4);
- 
+
+    private static final long serialVersionUID = 1L;
     private final String descripcion;
     private final String codigo;
     private final int creditos;
- 
+
     private Asignaturas(String descripcion, String codigo, int creditos) {
         this.descripcion = descripcion;
         this.codigo = codigo;

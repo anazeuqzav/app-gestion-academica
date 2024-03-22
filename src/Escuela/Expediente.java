@@ -5,17 +5,21 @@
 package Escuela;
 
 import Individuos.Alumno;
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
- *Clase que implementa un expediente de un alumno con sus notas
+ * Clase que implementa un expediente de un alumno con sus notas
+ *
  * @author vazqu
  * @version 1.0 13/03/2024
  */
-public class Expediente {
-    private HashMap <Asignaturas, Integer> notas; //Mapa donde se almacenan las notas de cada asignatura
+public class Expediente implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private HashMap<Asignaturas, Integer> notas; //Mapa donde se almacenan las notas de cada asignatura
     private Alumno alumno; //Objeto alumno
-    
+
     /**
      * Constructor
      */

@@ -3,6 +3,7 @@ package Individuos;
 import Escuela.Asignaturas;
 import Escuela.Expediente;
 import Escuela.Curso;
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /*
@@ -15,9 +16,10 @@ import java.util.regex.Pattern;
  * @author vazqu
  * @version 1.0 22/02/2024
  */
-public class Profesor extends Persona implements GestionAcademica {
+public class Profesor extends Persona implements GestionAcademica, Serializable{
 
     /**Atributos**/
+    private static final long serialVersionUID = 1L;
     private String fechaAlta; //Fecha en la que se da de alta un profesor en un curso
     private Asignaturas asignaturaImparte; //Asignatura que imparte, solo puede impartir una asignatura
 

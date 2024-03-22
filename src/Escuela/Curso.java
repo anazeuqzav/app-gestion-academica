@@ -2,9 +2,9 @@ package Escuela;
 
 import Individuos.Profesor;
 import Individuos.Alumno;
+import java.io.*;
 import java.time.LocalDate;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -18,11 +18,14 @@ import java.util.LinkedList;
  * @author vazqu
  * @version 2.0, 13/03/2024
  */
-public class Curso {
+public class Curso implements Serializable{
 
     /**
      * Atributos*
      */
+    private static final long serialVersionUID = 1L;
+    private String nombreCurso;
+    private static int contadorCurso = 1;
     private static final int NUM_ASIGNATURAS = 7; //Numero de asignaturas del curso
     private static final String NOMBRE_CURSO = "DAM 1 E-Learning"; //Nombre del curso
     private LocalDate fechaInicial; //Fecha de inicio del curso
@@ -35,10 +38,17 @@ public class Curso {
      * Constructor*
      */
     public Curso() {
+        this.nombreCurso = "dam" + contadorCurso++;
     }
     
     /**Getters**/
-
+    /**
+     * 
+     * @return 
+     */
+    public String getNombreCurso() {
+        return nombreCurso;
+    }
     /**
      * Obtiene el numero de asignaturas
      * @return Numero de asignaturas
@@ -90,6 +100,10 @@ public class Curso {
     }
 
     /**Setters**/
+    public void setNombreCurso(String nombreCurso) {
+        this.nombreCurso = nombreCurso;
+    }
+
     /**
      * Establece la fecha inicial del curso
      * @param fechaInicial Fecha de inicio del curso
@@ -224,6 +238,12 @@ public class Curso {
 
     /**
      * Inserta un profesor en el array de profesores
+     * @param fechaAlta
+     * @param asignaturaImparte
+     * @param dni
+     * @param identificador
+     * @param nombreCompleto
+     * @param email
      * @return 1 si ya existía un profesor para una asignatura y por lo tanto se
      * ha reemplazado con el nuevo; y 0 si se ha introducido correctamente el
      * nuevo profesor.
@@ -397,4 +417,29 @@ public class Curso {
         }
         return false; //si el estudiante no se encontró en la lista
     }
+    /**
+     * Guarda un archivo .dat del objeto curso creado
+     * @param nombreArchivo nombre que tendrá el archivo, generalmente "damX.dat"
+     * @throws IOException 
+     */
+    public void guardarEstado(String nombreArchivo) throws IOException {
+        nombreArchivo = nombreArchivo + ".dat";
+        ObjectOutputStream salidaDatos = new ObjectOutputStream(new FileOutputStream(nombreArchivo));
+        salidaDatos.writeObject(this);
+        salidaDatos.close();
+    }
+    /**
+     * 
+     * @param nombreArchivo
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException 
+     */
+    public static Curso cargarEstado(String nombreArchivo) throws IOException, ClassNotFoundException{
+        nombreArchivo = nombreArchivo + ".dat";
+        ObjectInputStream entradaDatos = new ObjectInputStream(new FileInputStream(nombreArchivo));
+        Curso cursoLeido = (Curso) (entradaDatos.readObject());
+        return cursoLeido;
+    }
+    
 }
