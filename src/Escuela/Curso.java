@@ -11,8 +11,8 @@ import java.util.*;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 /**
- * Clase curso: implementa un curso acad√©mico con asignaturas, alumnos, y notas.
- * Contiene los m√©todos para gestionar un curso como: insertar alumnos, insertar
+ * Clase curso: implementa un curso acadÈmico con asignaturas, alumnos, y notas.
+ * Contiene los mÈtodos para gestionar un curso como: insertar alumnos, insertar
  * profesores, actualizar notas, etc.
  *
  * @author vazqu
@@ -92,7 +92,7 @@ public class Curso implements Serializable{
         return profesores;
     }
     /**
-     * Obtiene el n√∫mero de profesores en el curso
+     * Obtiene el n˙mero de profesores en el curso
      * @return numero de profesores
      */
     public static int getNumeroProfesores() {
@@ -135,12 +135,12 @@ public class Curso implements Serializable{
         this.profesores = profesores;
     }
     
-    /**M√©todos**/
+    /**MÈtodos**/
     
    /**
     * Valida que la fecha en la que finaliza el curso sea despues que la fecha
     * Inicial
-    * @param fechaFinal fecha de finalizaci√≥n de curso
+    * @param fechaFinal fecha de finalizaciÛn de curso
     * @return true si la fecha es posterior a la fecha inicial o false si es
     * anterior
     */
@@ -160,7 +160,7 @@ public class Curso implements Serializable{
                 return i;
             }
         }
-        return null; // No se encontr√≥ el alumno
+        return null; // No se encontrÛ el alumno
     }
 
     /**
@@ -178,12 +178,12 @@ public class Curso implements Serializable{
 
     /**
      * Inserta un nuevoAlumno en la lista de alumnosConNotas de manera ordenada
-     * por su c√≥digo identificativo.
+     * por su cÛdigo identificativo.
      * @param nomAlum nombre del alumno
      * @param idAlum codigo identificativo
      * @param dniAlum dni o nie del alumno
      * @param emailAlum email del alumno
-     * @param fechaMatr fecha de matriculaci√≥n del alumno
+     * @param fechaMatr fecha de matriculaciÛn del alumno
      * @return true si se ha podido insertar el alumno con existo
      * false si no se ha introducio..
      */
@@ -192,7 +192,7 @@ public class Curso implements Serializable{
 
         Expediente nuevaNota = new Expediente();
         nuevaNota.setAlumno(nuevoAlumno);
-        // Busca la posici√≥n donde se debe insertar de forma ordenada por identificador
+        // Busca la posiciÛn donde se debe insertar de forma ordenada por identificador
         int index = 0;
         for (Expediente i : alumnosConNotas) {
             if (nuevoAlumno.compareTo(i.getAlumno()) < 0) {
@@ -200,7 +200,7 @@ public class Curso implements Serializable{
             }
             index++;
         }
-        // Insertar en la posici√≥n encontrada
+        // Insertar en la posiciÛn encontrada
         alumnosConNotas.add(index, nuevaNota);
         return true;
     }
@@ -244,7 +244,7 @@ public class Curso implements Serializable{
      * @param identificador
      * @param nombreCompleto
      * @param email
-     * @return 1 si ya exist√≠a un profesor para una asignatura y por lo tanto se
+     * @return 1 si ya existÌa un profesor para una asignatura y por lo tanto se
      * ha reemplazado con el nuevo; y 0 si se ha introducido correctamente el
      * nuevo profesor.
      */
@@ -253,11 +253,11 @@ public class Curso implements Serializable{
         Asignaturas asignaturaProfesor = nuevoProfesor.getAsignaturaImparte();
         for (int i = 0; i < numeroProfesores; i++) {
             if (profesores[i].getAsignaturaImparte().equals(asignaturaProfesor)) {
-                profesores[i] = nuevoProfesor; //reemplaza el profesor si ya exist√≠a uno
+                profesores[i] = nuevoProfesor; //reemplaza el profesor si ya existÌa uno
                 return 1;
             }
         }
-        //Establece el nuevo profesor en la √∫ltima posici√≥n el array
+        //Establece el nuevo profesor en la ˙ltima posiciÛn el array
         profesores[numeroProfesores] = nuevoProfesor;
         numeroProfesores++;
         return 0;
@@ -283,11 +283,11 @@ public class Curso implements Serializable{
      * @param idAlumno codigo identificativo del alumno
      * @param codigoAsignatura codigo de la asignatura
      * @param nota nota que se desea establecer
-     * @return false si est√° fuera del rango 0-10. true si se establece correctamente
+     * @return false si est· fuera del rango 0-10. true si se establece correctamente
      */
     public boolean setNota(String idAlumno, String codigoAsignatura, int nota) {
         if (nota < 0 || nota > 10) {
-            return false; //la nota est√° fuera del rango permitido
+            return false; //la nota est· fuera del rango permitido
         } else {
             Expediente expedienteAlumno = buscarAlumno(idAlumno);//busca el alumno en la lista
             if (expedienteAlumno != null) {
@@ -305,7 +305,7 @@ public class Curso implements Serializable{
      * Obtiene la nota de un alumno en una asignatura
      * @param idAlumno codigo identificativo del alumno
      * @param codigoAsignatura codigo de la asignatura
-     * @return -1 si no encuentra el alumno, -2 si el c√≥digo de la asignatura es
+     * @return -1 si no encuentra el alumno, -2 si el cÛdigo de la asignatura es
      * incorrecto y devuelve la nota si todo es correcto
      */
     public int getNota(String idAlumno, String codigoAsignatura) {
@@ -330,11 +330,11 @@ public class Curso implements Serializable{
     public StringBuilder InformeGeneral(Curso curso) {
         StringBuilder informeGeneral = new StringBuilder();
 
-        //Obtiene el a√±o de inicio y de final del curso 
-        int a√±oInicio = curso.getFechaInicial().getYear();
-        int a√±oFin = curso.getFechaFinal().getYear();
+        //Obtiene el a?o de inicio y de final del curso 
+        int anioInicio = curso.getFechaInicial().getYear();
+        int anioFin = curso.getFechaFinal().getYear();
         informeGeneral.append("\n\n");
-        String titulo = "INFORME GENERAL DEL CURSO " + a√±oInicio + "/" + a√±oFin + "\n";
+        String titulo = "INFORME GENERAL DEL CURSO " + anioInicio + "/" + anioFin + "\n";
         informeGeneral.append(titulo);
 
         //Obtiene el nombre del curso
@@ -348,7 +348,7 @@ public class Curso implements Serializable{
         informeGeneral.append("| Media\n");
         informeGeneral.append("-----------------------------------------------------------------------------------------------------------------------\n");
 
-        //Informaci√≥n de cada alumno
+        //InformaciÛn de cada alumno
         Iterator<Expediente> iteradorAlumnos = curso.getAlumnosConNotas().iterator();
         while (iteradorAlumnos.hasNext()) {
             Expediente notasAlumno = iteradorAlumnos.next();
@@ -401,6 +401,11 @@ public class Curso implements Serializable{
 
         return informeGeneral;
     }
+    
+    @Override
+    public String toString(){
+      return this.InformeGeneral(this).toString();
+    }
     /**
      * Elimina un alumno por su codigo de indentificacion
      * @param id codigo de identificacion
@@ -415,11 +420,11 @@ public class Curso implements Serializable{
                 return true;
             }
         }
-        return false; //si el estudiante no se encontr√≥ en la lista
+        return false; //si el estudiante no se encontrÛ en la lista
     }
     /**
      * Guarda un archivo .dat del objeto curso creado
-     * @param nombreArchivo nombre que tendr√° el archivo, generalmente "damX.dat"
+     * @param nombreArchivo nombre que tendr· el archivo, generalmente "damX.dat"
      * @throws IOException 
      */
     public void guardarEstado(String nombreArchivo) throws IOException {

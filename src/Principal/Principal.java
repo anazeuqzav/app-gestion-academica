@@ -1,34 +1,27 @@
 package Principal;
 
-import Escuela.Asignaturas;
+import Escuela.*;
 import static Escuela.Asignaturas.mostrarAsignaturas;
 import static Escuela.Asignaturas.validarAsignatura;
-import Escuela.Expediente;
-import Escuela.Curso;
-import Individuos.Alumno;
-import Individuos.Profesor;
-import Validar.Validaciones;
-import static Validar.Validaciones.validarDNI;
-import static Validar.Validaciones.validarEMAIL;
-import static Validar.Validaciones.validarFormatoFecha;
-import java.io.IOException;
-import java.time.LocalDate;
+import Individuos.*;
+import Validar.*;
+import static Validar.Validaciones.*;
+import java.io.*;
+import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.util.InputMismatchException;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
 /**
- * Clase principal que muestra un menú para la creacion de un curso acádemico. 
+ * Clase principal que muestra un menÃº para la creacion de un curso acÃ¡demico. 
  * Permite gestionarlo con sus diferentes opciones:
  * 1. Crear un curso
- * 2. A?adir un profesor
- * 3. A?adir un estudiante
+ * 2. AÃ±adir un profesor
+ * 3. AÃ±adir un estudiante
  * 4. Actualizar nota
  * 5. Informe de asignatura
  * 6. Informe de alumno
@@ -40,8 +33,8 @@ import java.util.logging.Logger;
  * @version 3.0 22/03/2024
  */
 public class Principal {
-    
-    private static final String PATHNAME ="./archivos/";
+    static Scanner teclado = new Scanner(System.in);
+    private static final String PATHNAME = "./archivos/";
     
     public static void guardarDatos(Curso curso, String archivo){
         archivo = PATHNAME + archivo;
@@ -49,7 +42,7 @@ public class Principal {
             curso.guardarEstado(archivo);
             System.out.println("Curso guardado en: " +  archivo);
         } catch (IOException ex) {
-            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Error al guardar el archivo");
         }
     }
     
@@ -63,20 +56,32 @@ public class Principal {
         }
     }
 
+    public static boolean validarNombreArchivo(String nombreArchivo) {
+        // ExpresiÃ³n regular para validar el nombre del archivo (permite letras, nÃºmeros, guiones bajos y guiones medios)
+        String regex = "^[a-zA-Z0-9_-]+\\.txt$";
+        return Pattern.matches(regex, nombreArchivo);
+    }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        Scanner teclado = new Scanner(System.in); //escaner para recoger datos por teclado
-        int opcion; //opción del menu
-        boolean validacion = false; //variable para controlar validaciones
-        boolean excepcion = false; //variable para controlar escepciones
-        Curso nuevoCurso = null; //inicialización a null de curso
-
-        do {
-            //Muestra el menú
+    public static void generarArchivo(StringBuilder contenido, String nombreArchivo) {
+        if (!validarNombreArchivo(nombreArchivo)) {
+            System.out.println("Error: El nombre del archivo es invÃ¡lido. Debe contener solo letras, nÃºmeros, guiones bajos y guiones medios, y tener la extensiÃ³n '.txt'.");
+        } else {
+            // Guardar el informe en el archivo de texto
+            nombreArchivo = PATHNAME + nombreArchivo;
+            try (FileWriter salida = new FileWriter(nombreArchivo)) {
+                salida.write(contenido.toString());
+                System.out.println("El informe se ha guardado en el archivo " + nombreArchivo + " correctamente.");
+                salida.close();
+            } catch (IOException e) {
+                System.out.println("Error al guardar el informe en el archivo.");
+            }
+        }
+    }
+    //Muestra el menu en pantalla.
+    public static int mostrarMenu(){
             System.out.println("""
+                                           GESTIÃ“N ACADÃ‰MICA
+                               ---------------------------------------
                                Elige una opcion: 
                                1. Crear curso 
                                2. Nuevo Profesor
@@ -89,124 +94,154 @@ public class Principal {
                                9. Guardar datos en disco
                                10. Cargar datos de disco
                                11. Salir""");
-            opcion = teclado.nextInt();
+            int opcion = teclado.nextInt();
+            return opcion;
+}
+    //MÃ©todo que pide las fechas del curso
+    public static void peticionFechas(Curso c) {
+        Boolean excepcion = false;
+        //Pide la fecha de inicio de curso
+        do {
+            try {
+                System.out.println("Introduce la fecha de inicio del curso (formato aaaa-mm-dd)");
+                c.setFechaInicial(LocalDate.parse(teclado.nextLine()));
+                excepcion = true;
+            } catch (DateTimeParseException | NumberFormatException e) {
+                System.out.println("El formato no es correcto");
+            } catch (Exception e) {
+                System.out.println("Se produjo un error");
+            }
+        } while (!excepcion);
+        //Pide la fecha final de curso
+        excepcion = false;
+        LocalDate fechaFinal = null;
+        do {
+            try {
+                System.out.println("Introduce la fecha final del curso (formato aaaa-mm-dd)");
+                String fechaFinalStr = teclado.nextLine();
+                fechaFinal = LocalDate.parse(fechaFinalStr);
+                if (c.validarFechaFinal(fechaFinal)) {
+                    c.setFechaFinal(fechaFinal);
+                    excepcion = true;
+                    break;
+                } else {
+                    System.out.println("La fecha no puede ser anterior a la fecha de inicio del curso. Por favor, vuelva a introducirla.");
+                }
+            } catch (DateTimeParseException | NumberFormatException e) {
+                System.out.println("El formato de fecha no es correcto");
+            }
+        } while (!excepcion);
+        
+    }
 
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        Scanner teclado = new Scanner(System.in); //escaner para recoger datos por teclado
+        int opcion; //opciÃ³n del menu
+        boolean validacion = false; //variable para controlar validaciones
+        boolean excepcion = false; //variable para controlar escepciones
+        Curso nuevoCurso = null; //inicializaciÃ³n a null de curso
+
+        do {
+            opcion = mostrarMenu();
             switch (opcion) {
                 //Opcion 1. Crear un curso
-                case 1:
-                    teclado.nextLine();
-                    //Se inicializa el curso
-                    nuevoCurso = new Curso();
-                    //Pide la fecha de inicio
-                    do {
-                        try {
-                            System.out.println("Introduce la fecha de inicio del curso (formato aaaa-mm-dd)");
-                            nuevoCurso.setFechaInicial(LocalDate.parse(teclado.nextLine()));
-                            excepcion = true;
-                        } catch (DateTimeParseException | NumberFormatException e) {
-                            System.out.println("El formato no es correcto");
-                        } catch (Exception e) {
-                            System.out.println("Se produjo un error");
-                        }
-                    } while (!excepcion);
-                    //Pide la fecha final de curso
-                    excepcion = false;
-                    LocalDate fechaFinal = null;
-                    do {
-                        try {
-                            System.out.println("Introduce la fecha final del curso (formato aaaa-mm-dd)");
-                            String fechaFinalStr = teclado.nextLine();
-                            fechaFinal = LocalDate.parse(fechaFinalStr);
-                            if (nuevoCurso.validarFechaFinal(fechaFinal)) {
-                                nuevoCurso.setFechaFinal(fechaFinal);
-                                excepcion = true;
-                                break;
-                            } else {
-                                System.out.println("La fecha no puede ser anterior a la fecha de inicio del curso. Por favor, vuelva a introducirla.");
+                case 1:                    
+                    //Si ya existe un curso creado
+                    if (nuevoCurso != null) {
+                        System.out.println("Ya existe un curso creado. Si continÃºa se borrarÃ¡ Â¿Desea continuar? (S/N)");
+                        String continuar;
+                        do {
+                            continuar = teclado.nextLine();
+                            if ("S".equals(continuar)) {
+                                nuevoCurso = new Curso(); //inicializar a un curso vacÃ­o
+                                teclado.nextLine();
+                                peticionFechas(nuevoCurso); //peticiÃ³n de fechas
+                            } else if (!continuar.equalsIgnoreCase("S") && !continuar.equalsIgnoreCase("N")) {
+                                System.out.println("Error: Ingrese 'S' para continuar o 'N' para salir.");
                             }
-                        } catch (DateTimeParseException | NumberFormatException e) {
-                            System.out.println("El formato de fecha no es correcto");
-                        }
-                    } while (!excepcion);
+                        } while (!continuar.equals("S") && !continuar.equals("N"));
+                    } else { //si no existe ningun curso creado, crea uno
+                        nuevoCurso = new Curso(); //inicializa un curso
+                        peticionFechas(nuevoCurso); //pide las fechas
+                    }
                     break;
 
-                //Opcion 2. A?adir un profesor
+                //Opcion 2. AÃ±adir un profesor
                 case 2:
                     if (nuevoCurso == null) {
                         System.out.println("Primero debe crear un curso");
                     } else {
-                        teclado.nextLine();
-                        //Petición del identificador
+                        //PeticiÃ³n del identificador
                         String idProfesor;
                         do {
                             System.out.println("Identificador del profesor:");
                             idProfesor = teclado.nextLine();
-                            //Si se pulsa X o x se sale de nuevo al menú
                             if ("X".equalsIgnoreCase(idProfesor)) {
-                                System.out.println("Operación cancelada.");
-                                break; //
-                            }
-                            //validacion del identificador
-                            if (!Profesor.validarIdentificador(idProfesor)) {
-                                System.out.println("Identificador inválido. Inténtelo de nuevo.");
+                                System.out.println("OperaciÃ³n cancelada.");
+                                return;
+                            }else if (!Profesor.validarIdentificador(idProfesor)) {
+                                System.out.println("Identificador invÃ¡lido. IntÃ©ntelo de nuevo.");
                             }
                         } while (!Profesor.validarIdentificador(idProfesor));
 
-                        //Petición del nombre completo
+                        //PeticiÃ³n del nombre completo
                         String nombreProfesor;
                         int validarNombre;
                         do {
                             System.out.println("Nombre completo del profesor: ");
                             nombreProfesor = teclado.nextLine();
                             validarNombre = Validaciones.validarNombre(nombreProfesor);
-                            if (validarNombre == -1){
+                            if (validarNombre == -1) { //si el nombre es mayor de 40 caracteres, solo guardarÃ¡ los primeros 40
                                 nombreProfesor = nombreProfesor.substring(0, 40);
-                            }else if (validarNombre == -2){
+                            } else if (validarNombre == -2) {//si se deja en blanco salta un aviso
                                 System.out.println("Ha dejado el campo el blanco.");
-                        }
+                            }
                         } while (validarNombre == -2);
                        
-                        //Petición fecha de alta
+                        //PeticiÃ³n fecha de alta
                         String fechaAlta;
-                        boolean validarFecha = false;
+                        validacion = false;
                         do {
-                            System.out.println("Fecha de alta del profesor(formato dd-mm-aaaa): ");
+                            System.out.println("Fecha de alta del profesor(formato: dd-mm-aaaa): ");
                             fechaAlta = teclado.nextLine();
                             //Comprueba que este en el formato correcto
                             if (validarFormatoFecha(fechaAlta)) {
                                 //Cambio a objeto de tipo LocalDate
                                 LocalDate fechaAltaFormatoLocalDate = Validaciones.formatearFecha(fechaAlta);
-                                //Comprobacion de que la fecha es anterior a la fecha de finalización del curso
+                                //Comprobacion de que la fecha es anterior a la fecha de finalizaciÃ³n del curso
                                 if (fechaAltaFormatoLocalDate.isBefore(nuevoCurso.getFechaFinal())) {
-                                    validarFecha = true;
+                                    validacion = true;
                                 } else {
-                                    System.out.println("La fecha debe ser anterior a la finalización del curso");
+                                    System.out.println("La fecha debe ser anterior a la finalizaciÃ³n del curso");
                                 }
                             } else {
                                 System.out.println("El formato de fecha introducido es incorrecto");
                             }
-                        } while (!validarFecha);
+                        } while (!validacion);
 
-                        //Petición dni
+                        //PeticiÃ³n dni
                         String dniProfesor;
                         do {
                             System.out.println("DNI o NIE del profesor: ");
                             dniProfesor = teclado.nextLine();
 
                             if ("X".equalsIgnoreCase(dniProfesor)) {
-                                System.out.println("Operación cancelada.");
-                                break; //
+                                System.out.println("OperaciÃ³n cancelada.");
+                                return; //
                             }
                             validacion = validarDNI(dniProfesor);
                             if (!validacion) {
-                                System.out.println("Identificador inválido. Inténtelo de nuevo.");
+                                System.out.println("Identificador invÃ¡lido. IntÃ©ntelo de nuevo.");
                             }
-                        } while (!validacion);
+                        } while (!validacion || "X".equalsIgnoreCase(dniProfesor));
 
-                        //Peticion correo electrónico
+                        //Peticion correo electrÃ³nico
                         String emailProfesor;
                         do {
-                            System.out.println("Correo electrónico del profesor: ");
+                            System.out.println("Correo electrÃ³nico del profesor: ");
                             emailProfesor = teclado.nextLine();
                         } while (!validarEMAIL(emailProfesor));
 
@@ -219,11 +254,11 @@ public class Principal {
                         } while (!validarAsignatura(codigoAsignatura));
                         Asignaturas asignaturaImpartida = Asignaturas.valueOf(codigoAsignatura);
 
-                        //A?ade el nuevo profesor al curso
+                        //AÃ±ade el nuevo profesor al curso
                         if (nuevoCurso.insertarProfesor(fechaAlta, asignaturaImpartida, dniProfesor, idProfesor, nombreProfesor, emailProfesor) == 1) {
                             System.out.println("Se ha reemplazado el profesor de la asignatura" + asignaturaImpartida);
                         } else {
-                            System.out.println("Se ha a?adido el profesor");
+                            System.out.println("Se ha aÃ±adido el profesor");
                         }
                     }
                     break;
@@ -233,50 +268,48 @@ public class Principal {
                     if (nuevoCurso == null) {
                         System.out.println("Primero debe crear un curso");
                     } else {
-                        teclado.nextLine();
-
                         //Peticion de identificador
                         String idAlumno;
                         do {
                             System.out.println("Identificador del alumno:");
                             idAlumno = teclado.nextLine();
                             if ("X".equalsIgnoreCase(idAlumno)) {
-                                System.out.println("Operación cancelada.");
-                                break; //Si se pulsa X o x se sale de nuevo al menú
+                                System.out.println("OperaciÃ³n cancelada.");
+                                return;
                             } else if (!Alumno.validarIdentificador(idAlumno)) {
-                                System.out.println("Identificador inválido. Inténtelo de nuevo.");
+                                System.out.println("Identificador invÃ¡lido. IntÃ©ntelo de nuevo.");
                             } else if (nuevoCurso.alumnoExiste(idAlumno)) {
                                 System.out.println("El ID ya existe"); //si el alumno ya existe
                             }
-                        } while (!Alumno.validarIdentificador(idAlumno) || nuevoCurso.alumnoExiste(idAlumno));
+                        } while (!Alumno.validarIdentificador(idAlumno) || nuevoCurso.alumnoExiste(idAlumno) || "X".equalsIgnoreCase(idAlumno));
                     
-                        //Petición de nombre completo
+                        //PeticiÃ³n de nombre completo
                         String nombreAlumno;
                         do {
                             System.out.println("Nombre completo del alumno: ");
                             nombreAlumno = teclado.nextLine();
                             if (Validaciones.validarNombre(nombreAlumno) == -1) {
-                                nombreAlumno = nombreAlumno.substring(0, 40);
+                                nombreAlumno = nombreAlumno.substring(0, 40); //si introduce un nombre con mÃ¡s de 40 caracteres, se guardan los 40 primeros
                             } else if (Validaciones.validarNombre(nombreAlumno) == -2) {
-                                System.out.println("Ha dejado el campo el blanco.");
+                                System.out.println("Ha dejado el campo el blanco."); //si deja el campo en blanco
                             }
                         } while (Validaciones.validarNombre(nombreAlumno) == -2);
 
-                        //Petición de fecha de Matriculacion
+                        //PeticiÃ³n de fecha de Matriculacion
                         String fechaMatriculacion;
                         boolean validarFechaMatriculacion = false;
                         do {
                             System.out.println("Fecha de matriculacion (formato dd-mm-aaaa): ");
                             fechaMatriculacion = teclado.nextLine();
                             if ("X".equalsIgnoreCase(fechaMatriculacion)) {
-                                System.out.println("Operación cancelada.");
-                                break; //
+                                System.out.println("OperaciÃ³n cancelada.");
+                                opcion = mostrarMenu();
                             }
-                            //Comprobación de que se encuentra en el formato correcto
+                            //ComprobaciÃ³n de que se encuentra en el formato correcto
                             if (validarFormatoFecha(fechaMatriculacion)) {
                                 //Cambio a objeto de tipo LocalDate
                                 LocalDate fechaMatriculacionFormatoLocalDate = Validaciones.formatearFecha(fechaMatriculacion);
-                                //Comprobación de que se encuentra entre la fecha de inicio y final de curso
+                                //ComprobaciÃ³n de que se encuentra entre la fecha de inicio y final de curso
                                 if (fechaMatriculacionFormatoLocalDate.isEqual(nuevoCurso.getFechaInicial()) || fechaMatriculacionFormatoLocalDate.isEqual(nuevoCurso.getFechaFinal())
                                         || (fechaMatriculacionFormatoLocalDate.isAfter(nuevoCurso.getFechaInicial()) && fechaMatriculacionFormatoLocalDate.isBefore(nuevoCurso.getFechaFinal()))) {
                                     validarFechaMatriculacion = true;
@@ -286,33 +319,33 @@ public class Principal {
                             } else {
                                 System.out.println("El formato de fecha introducido es incorrecto");
                             }
-                        } while (!validarFechaMatriculacion);
+                        } while (!validarFechaMatriculacion || "X".equalsIgnoreCase(fechaMatriculacion));
 
-                        //Petición del DNI o NIE del alumno
+                        //PeticiÃ³n del DNI o NIE del alumno
                         String dniAlumno;
                         do {
                             System.out.println("DNI o NIE del alumno: ");
                             dniAlumno = teclado.nextLine();
                             if ("X".equalsIgnoreCase(dniAlumno)) {
-                                System.out.println("Operación cancelada.");
-                                return; //
+                                System.out.println("OperaciÃ³n cancelada.");
+                                return;
                             }
                             validacion = validarDNI(dniAlumno);
                             if (!validacion) {
-                                System.out.println("Identificador inválido. Inténtelo de nuevo.");
+                                System.out.println("Identificador invÃ¡lido. IntÃ©ntelo de nuevo.");
                             }
                         } while (!validacion);
 
-                        //Peticion del correo electrónico del alumno
+                        //Peticion del correo electrÃ³nico del alumno
                         String emailAlumno;
                         do {
-                            System.out.println("Correo electrónico del alumno: ");
+                            System.out.println("Correo electrÃ³nico del alumno: ");
                             emailAlumno = teclado.nextLine();
                         } while (!validarEMAIL(emailAlumno));
 
-                        //Creación del objeto alumno
+                        //CreaciÃ³n del objeto alumno en el curso
                         if (nuevoCurso.insertarAlumno(nombreAlumno, idAlumno, dniAlumno, emailAlumno, fechaMatriculacion)) {
-                            System.out.println("El alumno fue a?adido correctamente\n");
+                            System.out.println("El alumno fue aÃ±adido correctamente\n");
                             System.out.println("Introduzca las notas del alumno:");
 
                             //Solicita las notas de cada asignatura
@@ -331,7 +364,7 @@ public class Principal {
                                             excepcion = true;
                                         }
                                     } catch (InputMismatchException | NumberFormatException e) {
-                                        System.out.println("Error: Debes introducir un número entre el 0 y el 10.\n");
+                                        System.out.println("Error: Debes introducir un nÃºmero entre el 0 y el 10.\n");
                                     }
                                 } while (!excepcion);
                             }
@@ -341,14 +374,13 @@ public class Principal {
 
                 //Opcion 4. Actualizar nota
                 case 4:
-                    teclado.nextLine();
                     if (nuevoCurso == null) {
                         System.out.println("Primero debe crear un curso");
                     } else {
                         System.out.println("Introduce el ID del alumno que quiera modificar la nota: ");
                         System.out.println(nuevoCurso.mostrarAlumnos());
                         String id = teclado.nextLine();
-                        System.out.println("Introduce el código de la asignatura: ");
+                        System.out.println("Introduce el cÃ³digo de la asignatura: ");
                         Asignaturas.mostrarAsignaturas();
                         String codAsignatura = teclado.nextLine();
                         int nota = nuevoCurso.getNota(id, codAsignatura);
@@ -358,7 +390,7 @@ public class Principal {
                                 System.out.println("El ID del alumno introducido es incorrecto o no existe");
                                 break;
                             case -2:
-                                System.out.println("El código de la asignatura es incorrecto");
+                                System.out.println("El cÃ³digo de la asignatura es incorrecto");
                                 break;
                             default:
                                 System.out.println("La nota del alumno " + id + " en la asignatura "
@@ -376,7 +408,7 @@ public class Principal {
                                             excepcion = true;
                                         }
                                     } catch (InputMismatchException | NumberFormatException e) {
-                                        System.out.println("Error: Debes introducir un número entre el 0 y el 10.\n");
+                                        System.out.println("Error: Debes introducir un nÃºmero entre el 0 y el 10.\n");
                                     }
                                 } while (!excepcion);
                         }
@@ -385,20 +417,17 @@ public class Principal {
                         
                 //Opcion 5. Informe de asignatura
                 case 5:
-                    teclado.nextLine();
                     if (nuevoCurso == null) {
                         System.out.println("Primero debe crear un curso");
                     } else if (nuevoCurso.getProfesores() == null) {
-                        System.out.println("No existen profesores. Por favor, a?ada uno");
+                        System.out.println("No existen profesores. Por favor, aÃ±ada uno");
                     } else {
-                        String id;
                         //Pide el Identificador del profesor que se quiere hacer informe
                         System.out.println("Introduce el ID del profesor: ");
                         System.out.println(nuevoCurso.mostrarProfesores());
-                        id = teclado.nextLine();
+                        String id = teclado.nextLine();
                         //Busca el ID del profesor
                         Profesor profesorInforme = nuevoCurso.buscaProfesor(id);
-                        
                         if (profesorInforme == null) {
                             System.out.println("ID introducido incorrecto, el profesor no existe");
                         } else {
@@ -410,11 +439,10 @@ public class Principal {
                     
                 //Opcion 6. Informe de alumno
                 case 6:
-                    teclado.nextLine();
                     if (nuevoCurso == null) {
                         System.out.println("Primero debe crear un curso");
                     } else if (nuevoCurso.getAlumnosConNotas() == null) {
-                        System.out.println("No existen alumnos. Por favor, a?ada uno");
+                        System.out.println("No existen alumnos. Por favor, aÃ±ada uno");
                     } else {
                         String id;
                         System.out.println("Introduce el ID del alumno: ");
@@ -435,12 +463,23 @@ public class Principal {
                         System.out.println("Primero debe crear un curso");
                     } else {
                         System.out.println(nuevoCurso.InformeGeneral(nuevoCurso));
+                        System.out.println("\nÂ¿Quiere guardar el informe en un archivo? (S/N)");
+                        String continuar;
+                        do {
+                            continuar = teclado.nextLine();
+                            if ("S".equalsIgnoreCase(continuar)) {
+                                System.out.println("Escriba un nombre para el archivo: ");
+                                String nombreArchivo = teclado.nextLine();
+                                generarArchivo(nuevoCurso.InformeGeneral(nuevoCurso), nombreArchivo);
+                            } else if (!continuar.equalsIgnoreCase("S") && !continuar.equalsIgnoreCase("N")) {
+                                System.out.println("Error: Ingrese 'S' para continuar o 'N' para salir.");
+                            }
+                        } while (!continuar.equalsIgnoreCase("S") && !continuar.equalsIgnoreCase("N"));
                     }
                     break;
                     
-                //Opción 8. Eliminar alumno
+                //OpciÃ³n 8. Eliminar alumno
                 case 8:
-                    teclado.nextLine();
                     if (nuevoCurso == null) {
                         System.out.println("Primero debe crear un curso");
                     } else if (nuevoCurso.getAlumnosConNotas() == null) {
@@ -450,49 +489,48 @@ public class Principal {
                         System.out.println(nuevoCurso.mostrarAlumnos());
                         String id = teclado.nextLine();
                         if(nuevoCurso.eliminarAlumno(id)){
-                            System.out.println("El alumno se eliminó correctamente");
+                            System.out.println("El alumno se eliminÃ³ correctamente");
                         }else{
-                            System.out.println("No se encontró el alumno.");
+                            System.out.println("No se encontrÃ³ el alumno.");
                         }
                     }
                     break;
             
-                //Opción 9. Guardar datos en disco    
+                //OpciÃ³n 9. Guardar datos en disco    
                 case 9:
-                    teclado.nextLine();
                     if (nuevoCurso == null) {
                         System.out.println("Primero debe crear un curso");
                     } else {
                         guardarDatos(nuevoCurso, nuevoCurso.getNombreCurso());
                     }
                     break;
-                //Opción 10. Cargar datos de disco
+                    
+                //OpciÃ³n 10. Cargar datos de disco
                 case 10:
-                    teclado.nextLine();
                     if (nuevoCurso != null) {
                         String continuar;
-                        System.out.println("Hay datos creados del curso " + nuevoCurso.getNOMBRE_CURSO() + ". Si continúa se perderán. ?Desea continuar? (S/N)");
+                        System.out.println("Hay datos creados del curso " + nuevoCurso.getNOMBRE_CURSO() + ". Si continÃºa se perderÃ¡n. Â¿Desea continuar? (S/N)");
                         do {
                             continuar = teclado.nextLine();
                             if ("S".equals(continuar)) {
-                                System.out.println("?Qué curso desea cargar? (formato: damx)");
+                                System.out.println("Â¿QuÃ© curso desea cargar? (formato: damx)");
                                 nuevoCurso = cargarDatos(teclado.nextLine());
                             } else if (!continuar.equals("S") && !continuar.equals("N")) {
                                 System.out.println("Error: Ingrese 'S' para continuar o 'N' para salir.");
                             }
                         } while (!continuar.equals("S") && !continuar.equals("N"));
                     } else {
-                        System.out.println("?Qué curso desea cargar? (formato: damx)");
+                        System.out.println("Â¿QuÃ© curso desea cargar? (formato: damx)");
                         nuevoCurso = cargarDatos(teclado.nextLine());
                     }
                     break;
-                //Opción 9. Salir del programa
+                //OpciÃ³n 9. Salir del programa
                 case 11:
-                    System.out.println("El programa se cerrará");
+                    System.out.println("El programa se cerrarÃ¡");
                     break;
                 //Cualquier opcion que no sea 1-9
                 default:
-                    System.out.println("Elige una opción válida");
+                    System.out.println("Elige una opciÃ³n vÃ¡lida");
                     break;
             }
         } while (opcion != 11);
