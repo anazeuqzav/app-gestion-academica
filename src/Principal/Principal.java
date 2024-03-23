@@ -33,9 +33,13 @@ import java.util.regex.Pattern;
  * @version 3.0 22/03/2024
  */
 public class Principal {
-    static Scanner teclado = new Scanner(System.in);
-    private static final String PATHNAME = "./archivos/";
-    
+    static Scanner teclado = new Scanner(System.in); //escaner para peticiones de datos por teclado 
+    private static final String PATHNAME = "./archivos/"; //ruta donde se guardarán los diferentes archivos
+    /**
+     * Metodo que permite guardar los datos de un curso
+     * @param curso Objeto curso a guardar
+     * @param archivo nombre del archivo
+     */
     public static void guardarDatos(Curso curso, String archivo){
         archivo = PATHNAME + archivo;
         try {
@@ -45,7 +49,11 @@ public class Principal {
             System.out.println("Error al guardar el archivo");
         }
     }
-    
+    /**
+     * Método que permite cargar los datos de un curso
+     * @param archivo nombre dela rchivo que se quiere cargar
+     * @return el Objeto Curso cargado
+     */
     public static Curso cargarDatos(String archivo) {
         archivo = PATHNAME + archivo;
         try {
@@ -55,28 +63,37 @@ public class Principal {
             return null;
         }
     }
-
+    /**
+     * Valida el nombre de un archivo para que cumpla con las caracteristicas de los archivos en Windows.
+     * @param nombreArchivo Cadena con el nombre del archivo
+     * @return True si es válido y False si no es válido
+     */
     public static boolean validarNombreArchivo(String nombreArchivo) {
-        // Expresión regular para validar el nombre del archivo (permite letras, números, guiones bajos y guiones medios)
-        String regex = "^[a-zA-Z0-9_-]+\\.txt$";
-        return Pattern.matches(regex, nombreArchivo);
+        String patron = "^[a-zA-Z0-9_-]+$";
+        return Pattern.matches(patron, nombreArchivo);
     }
 
+    /**
+     * Método que permite generar un archivo txt de un StringBuidler. Usado para generar el Informe General.
+     * @param contenido Strinbuilder del que se hará el archivo .txt
+     * @param nombreArchivo nombre que tendrá el archivo
+     */
     public static void generarArchivo(StringBuilder contenido, String nombreArchivo) {
         if (!validarNombreArchivo(nombreArchivo)) {
-            System.out.println("Error: El nombre del archivo es inválido. Debe contener solo letras, números, guiones bajos y guiones medios, y tener la extensión '.txt'.");
+            System.out.println("Error: El nombre del archivo es inválido. Debe contener solo letras, números, guiones bajos y guiones medios.");
         } else {
             // Guardar el informe en el archivo de texto
-            nombreArchivo = PATHNAME + nombreArchivo;
+            nombreArchivo = PATHNAME + nombreArchivo + ".txt";
             try (FileWriter salida = new FileWriter(nombreArchivo)) {
                 salida.write(contenido.toString());
-                System.out.println("El informe se ha guardado en el archivo " + nombreArchivo + " correctamente.");
+                System.out.println("El informe se ha guardado en: " + nombreArchivo + " correctamente.");
                 salida.close();
             } catch (IOException e) {
                 System.out.println("Error al guardar el informe en el archivo.");
             }
         }
     }
+  
     //Muestra el menu en pantalla.
     public static int mostrarMenu(){
             System.out.println("""
